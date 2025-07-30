@@ -4,6 +4,11 @@ import { createContext, useEffect, useState } from "react";
 
 export const CartContext = createContext();
 
+// Define API base URL using environment variable
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+ const get = JSON.parse(localStorage.getItem('user'))
+  const token = get?.value?.token
+
 export const CartProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [data, setData] = useState({});
@@ -22,7 +27,7 @@ export const CartProvider = ({ children }) => {
         }
       } catch (err) {
         localStorage.removeItem("user");
-          window.location.href = '/login'
+        window.location.href = '/login'
       }
     }
   }, []);
@@ -32,7 +37,9 @@ export const CartProvider = ({ children }) => {
     const fetchUser = async () => {
       if (!user?.id) return;
       try {
-        const resp = await axios.get(`http://localhost:7000/api/v1/get-single-user/${user.id}`);
+        const resp = await axios.get(`${VITE_API_BASE_URL}/get-single-user/${user.id}`, {
+          headers: {Authorization: `Bearer ${token}`}
+        });
         setData(resp.data.data);
       } catch (error) {
         console.error("Error fetching user:", error);

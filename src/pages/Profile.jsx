@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 
 export default function Profile({ isSidebarOpen }) {
   const { data, setUser, setData } = useContext(CartContext); // 👈 You may switch this to UserContext
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // get token
  const get = JSON.parse(localStorage.getItem('user'))
@@ -42,7 +43,7 @@ export default function Profile({ isSidebarOpen }) {
   // ✅ Save updated profile to backend
   const handleSave = async () => {
     try {
-       const resp = await axios.put(`http://localhost:7000/api/v1/update-user/${id}`, {name: tempProfile.name, phone: tempProfile.phone}, { headers: { Authorization: `Bearer ${token}` } })
+       const resp = await axios.put(`${VITE_API_BASE_URL}/update-user/${id}`, {name: tempProfile.name, phone: tempProfile.phone}, { headers: { Authorization: `Bearer ${token}` } })
       if (resp.data.success === true) {
         toast.success(resp.data.msg)
         setData(resp?.data?.data)

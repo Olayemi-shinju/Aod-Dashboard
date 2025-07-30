@@ -10,6 +10,7 @@ export default function EditCategory({ closeModal, setCategories, category }) {
     const [imagePublicId] = useState(category?.imagePublicId || ""); // Needed for backend
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     useEffect(() => {
         if (imageFile) {
@@ -43,7 +44,7 @@ export default function EditCategory({ closeModal, setCategories, category }) {
             }
 
             const resp = await axios.put(
-                `http://localhost:7000/api/v1/update-category/${category._id}`,
+                `${VITE_API_BASE_URL}/update-category/${category._id}`,
                 formData,
                 {
                     headers: {

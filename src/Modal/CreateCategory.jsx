@@ -9,6 +9,7 @@ export default function CreateCategoryModal({ closeModal, setCategories }) {
     const [previewUrl, setPreviewUrl] = useState(null);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     const get = JSON.parse(localStorage.getItem("user"));
     const id = get?.value?.id;
@@ -43,7 +44,7 @@ export default function CreateCategoryModal({ closeModal, setCategories }) {
             formData.append("image", imageFile);
 
             const resp = await axios.post(
-                `http://localhost:7000/api/v1/create-category/${id}`,
+                `${VITE_API_BASE_URL}/create-category/${id}`,
                 formData,
                 {
                     headers: {

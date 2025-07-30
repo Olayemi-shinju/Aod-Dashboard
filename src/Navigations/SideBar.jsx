@@ -9,11 +9,12 @@ import {
   FaAngleDoubleRight
 } from 'react-icons/fa';
 import { MdOutlineMessage } from "react-icons/md";
+import { GrProjects } from "react-icons/gr";
 import { Link } from 'react-router-dom';
 import { useContext, useEffect } from 'react';
 import Logo from '../assets/Logo.png';
 import { CartContext } from '../Contexts/Context';
-
+import { FaTv } from "react-icons/fa";
 export default function Sidebar({ isOpen, toggleSidebar }) {
   const { user, data } = useContext(CartContext)
 
@@ -73,7 +74,10 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
                 { to: "/orders", icon: <FaClipboardList />, label: "Orders" },
                 { to: "/messages", icon: <MdOutlineMessage />, label: "Messages" },
                 { to: "/users", icon: <FaUserFriends />, label: "Users" },
-              ].map(({ to, icon, label, count }) => (
+                { to: "/electronics", icon: <FaTv />, label: "Electonics" },
+                { to: "/project", icon: <GrProjects />, label: "Projects" },
+
+              ].map(({ to, icon, label }) => (
                 <Link key={to} to={to} onClick={handleLinkClick}>
                   <li className="flex items-center gap-6 px-3 py-2 text-gray-300 hover:text-white hover:bg-white/10 rounded">
                     {icon}

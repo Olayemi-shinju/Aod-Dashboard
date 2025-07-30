@@ -14,6 +14,9 @@ const ResetPasswordPage = () => {
   const { token } = useParams();
   const navigate = useNavigate();
 
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+
   const isDisabled = !newPassword || !confirmPassword;
 
   const handleSubmit = async (e) => {
@@ -32,7 +35,7 @@ const ResetPasswordPage = () => {
 
     try {
       const resp = await axios.post(
-        `http://localhost:7000/api/v1/reset-password/${token}`,
+        `${VITE_API_BASE_URL}/reset-password/${token}`,
         { newPassword }
       );
 

@@ -16,11 +16,13 @@ export default function Categories({ isSidebarOpen }) {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const { data } = useContext(CartContext);
 
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     useEffect(() => {
         const fetchCategory = async () => {
             try {
                 setLoading(true);
-                const resp = await axios.get('http://localhost:7000/api/v1/get-category');
+                const resp = await axios.get(`${VITE_API_BASE_URL}/get-category`);
                 setLoading(false);
                 if (resp.data.success) {
                     setCategories(resp.data.data);

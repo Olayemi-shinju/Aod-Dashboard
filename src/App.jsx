@@ -18,6 +18,8 @@ import OTPForm from "./Authentication/Otp";
 import ResetPasswordPage from "./Authentication/ResetPassword";
 import { CartProvider } from "./Contexts/Context";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { Electonics } from "./pages/Electronics";
+import { Projects } from "./pages/Projects";
 
 export default function App() {
   return (
@@ -53,6 +55,9 @@ export default function App() {
               <Route path="profile" element={<Profile />} />
               <Route path="messages" element={<Messages />} />
               <Route path="users" element={<User />} />
+              <Route path="electronics" element={<Electonics />} />
+              <Route path="project" element={<Projects />} />
+
             </Route>
 
             {/* ✅ Public Routes */}

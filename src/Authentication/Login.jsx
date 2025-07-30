@@ -11,6 +11,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loader, setLoader] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
   const { setUser } = useContext(CartContext); // ✅ get setUser from context
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ export default function LoginPage() {
         return;
       }
 
-      const resp = await axios.post('http://localhost:7000/api/v1/login', formData);
+      const resp = await axios.post(`${VITE_API_BASE_URL}/login`, formData);
 
       if (resp.data.success === true) {
         toast.success(resp.data.msg);

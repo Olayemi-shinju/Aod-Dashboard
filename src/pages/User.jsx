@@ -1,27 +1,59 @@
-import { useContext, useState } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { useContext, useEffect, useState } from "react";
+import { FaTrash } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import { CartContext } from "../Contexts/Context";
-
-const initialUsers = [
-    { id: 1, name: "John Doe", email: "john@example.com", phone: '09135611021' },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", phone: '09135411021' },
-    { id: 3, name: "Ali Joker", email: "ali@example.com", phone: '08135616021' },
-    { id: 4, name: "Emily Rose", email: "emily@example.com", phone: '07035617021' },
-];
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function User({ isSidebarOpen }) {
-    const [users, setUsers] = useState(initialUsers);
+    const [users, setUsers] = useState([]);
     const [search, setSearch] = useState("");
-      const { user, data } = useContext(CartContext)
-    
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState(null);
+    const [loadingDelete, setLoadingDelete] = useState(false);
 
-    const handleDelete = (id) => {
-        setUsers(users.filter(user => user.id !== id));
+    const { data } = useContext(CartContext);
+    const get = JSON.parse(localStorage.getItem("user"));
+    const token = get?.value?.token;
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const resp = await axios.get(`${VITE_API_BASE_URL}/get-all-user`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setUsers(resp.data.success ? resp.data.data : []);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        fetchUser();
+    }, []);
+
+    const confirmDelete = async () => {
+        if (!selectedUserId) return;
+
+        setLoadingDelete(true);
+        try {
+            const resp = await axios.delete(`${VITE_API_BASE_URL}/delete-user/${selectedUserId}`);
+            if (resp.data.success === true) {
+                setUsers(resp.data.data);
+                toast.info(resp.data.msg);
+                setConfirmDeleteOpen(false);
+                setSelectedUserId(null);
+            }
+        } catch (error) {
+            toast.error(error?.response?.data?.msg || 'An error occurred');
+        } finally {
+            setLoadingDelete(false);
+        }
     };
 
-    const handleEdit = (id) => {
-        alert(`Edit user with ID ${id}`);
+    const openDeleteModal = (id) => {
+        setSelectedUserId(id);
+        setConfirmDeleteOpen(true);
     };
 
     const filteredUsers = users.filter(user =>
@@ -36,7 +68,6 @@ export default function User({ isSidebarOpen }) {
                 <h1 className="text-sm mt-2 font-bold">
                     Welcome back, <span className="text-sm">{data?.name}</span>
                 </h1>
-             
             </div>
 
             {/* User Table */}
@@ -69,21 +100,15 @@ export default function User({ isSidebarOpen }) {
                             </thead>
                             <tbody>
                                 {filteredUsers.map((user, index) => (
-                                    <tr key={user.id} className="border-b hover:bg-gray-50">
+                                    <tr key={user._id} className="border-b hover:bg-gray-50">
                                         <td className="px-4 py-3">{index + 1}</td>
                                         <td className="px-4 py-3">{user.name}</td>
                                         <td className="px-4 py-3">{user.email}</td>
                                         <td className="px-4 py-3">{user.phone}</td>
                                         <td className="px-4 py-3 text-right space-x-2">
                                             <button
-                                                onClick={() => handleEdit(user.id)}
-                                                className="text-blue-500 hover:text-blue-700"
-                                            >
-                                                <FaEdit />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(user.id)}
-                                                className="text-red-500 hover:text-red-700"
+                                                onClick={() => openDeleteModal(user._id)}
+                                                className="text-red-500 cursor-pointer hover:text-red-700"
                                             >
                                                 <FaTrash />
                                             </button>
@@ -92,7 +117,7 @@ export default function User({ isSidebarOpen }) {
                                 ))}
                                 {filteredUsers.length === 0 && (
                                     <tr>
-                                        <td colSpan="4" className="text-center text-sm py-4 text-gray-500">
+                                        <td colSpan="5" className="text-center text-sm py-4 text-gray-500">
                                             No users found.
                                         </td>
                                     </tr>
@@ -102,6 +127,35 @@ export default function User({ isSidebarOpen }) {
                     </div>
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {confirmDeleteOpen && (
+                <>
+                    <div
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+                        onClick={() => setConfirmDeleteOpen(false)}
+                    ></div>
+                    <div className="fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 w-80 max-w-full">
+                        <p className="mb-4 text-center text-gray-700">Are you sure you want to delete this user?</p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => setConfirmDeleteOpen(false)}
+                                className="px-4 py-2 cursor-pointer rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
+                                disabled={loadingDelete}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="px-4 py-2 rounded cursor-pointer bg-red-500 hover:bg-red-600 text-white"
+                                disabled={loadingDelete}
+                            >
+                                {loadingDelete ? "Deleting..." : "Confirm"}
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

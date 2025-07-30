@@ -19,6 +19,9 @@ const RegisterPage = () => {
         role: 'admin'
     })
 
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+
     const navigate = useNavigate()
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -34,7 +37,7 @@ const RegisterPage = () => {
                 setError('Pls Fill All Fields')
                 return
             }
-            const resp = await axios.post('http://localhost:7000/api/v1/sign', formData)
+            const resp = await axios.post(`${VITE_API_BASE_URL}/sign`, formData)
             if (resp.data.success === true) {
                 toast.success(resp.data.data.msg)
                 setLoader(false)

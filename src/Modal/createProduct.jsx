@@ -19,6 +19,7 @@ export default function CreateProductModal({ closeModal, setProducts, categories
   const [previews, setPreviews] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const get = JSON.parse(localStorage.getItem("user"));
   const adminId = get?.value?.id;
@@ -58,7 +59,7 @@ export default function CreateProductModal({ closeModal, setProducts, categories
       images.forEach((img) => formData.append("images", img));
 
       const resp = await axios.post(
-        `http://localhost:7000/api/v1/create-product/${adminId}`,
+        `${VITE_API_BASE_URL}/create-product/${adminId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

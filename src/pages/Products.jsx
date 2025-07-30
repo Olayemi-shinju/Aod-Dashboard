@@ -5,6 +5,7 @@ import CreateProductModal from "../Modal/createProduct";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { IoSearch } from "react-icons/io5";
+import EditProductModal from "../Modal/editProduct";
 
 export default function Products({ isSidebarOpen }) {
     const [products, setProducts] = useState([]);
@@ -13,12 +14,14 @@ export default function Products({ isSidebarOpen }) {
     const { data } = useContext(CartContext);
     const [loadedImages, setLoadedImages] = useState({});
     const [open, setOpen] = useState(false);
+    const [open1, setOpen1] = useState(false);
     const [categories, setCategories] = useState([]);
     const [productToggles, setProductToggles] = useState({});
     const [loadingToggles, setLoadingToggles] = useState({});
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [input, setInput] = useState("");
-
+    const [selectedProduct, setSelectedProduct] = useState(null)
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     const filterProduct = products.filter((products) =>
         products.name.toLowerCase().includes(input.toLowerCase()) || products.brand.toLowerCase().includes(input.toLowerCase())
@@ -32,6 +35,9 @@ export default function Products({ isSidebarOpen }) {
     const openModal = () => setOpen(true);
     const closeModal = () => setOpen(false);
 
+    const openModal1 = () => setOpen1(true);
+    const closeModal1 = () => setOpen1(false);
+
     const handleImageLoad = (id) => {
         setLoadedImages((prev) => ({ ...prev, [id]: true }));
     };
@@ -41,7 +47,7 @@ export default function Products({ isSidebarOpen }) {
         const fetchCategory = async () => {
             try {
                 setLoading(true);
-                const resp = await axios.get("http://localhost:7000/api/v1/get-category");
+                const resp = await axios.get(`${VITE_API_BASE_URL}/get-category`);
                 setLoading(false);
                 if (resp.data.success) {
                     setCategories(resp.data.data);
@@ -62,7 +68,7 @@ export default function Products({ isSidebarOpen }) {
         const fetchProduct = async () => {
             try {
                 setLoading(true);
-                const resp = await axios.get("http://localhost:7000/api/v1/get-all-product");
+                const resp = await axios.get(`${VITE_API_BASE_URL}/get-all-product`);
                 setLoading(false);
                 if (resp.data.success) {
                     setProducts(resp.data.data);
@@ -97,7 +103,7 @@ export default function Products({ isSidebarOpen }) {
 
         try {
             const newValue = !currentValue;
-            const resp = await axios.patch(`http://localhost:7000/api/v1/patch-product/${id}`, {
+            const resp = await axios.patch(`${VITE_API_BASE_URL}/patch-product/${id}`, {
                 isTrending: newValue,
             });
 
@@ -131,7 +137,7 @@ export default function Products({ isSidebarOpen }) {
 
         try {
             const newValue = !currentValue;
-            const resp = await axios.patch(`http://localhost:7000/api/v1/patch-product/${id}`, {
+            const resp = await axios.patch(`${VITE_API_BASE_URL}/patch-product/${id}`, {
                 isNewArrival: newValue,
             });
 
@@ -154,8 +160,9 @@ export default function Products({ isSidebarOpen }) {
         }
     };
 
-    const handleEdit = (id) => {
-        alert(`Edit product with id: ${id}`);
+    const handleEdit = (product) => {
+        setSelectedProduct(product);
+        setOpen1(true);
     };
 
     // Instead of deleting immediately, open confirm modal
@@ -170,7 +177,7 @@ export default function Products({ isSidebarOpen }) {
 
         setLoadingDelete(true);
         try {
-            const resp = await axios.delete(`http://localhost:7000/api/v1/delete-product/${deleteProductId}`);
+            const resp = await axios.delete(`${VITE_API_BASE_URL}/delete-product/${deleteProductId}`);
             if (resp.data.success === true) {
                 // Remove deleted product from products list
                 setProducts((prev) => prev.filter((p) => p._id !== deleteProductId));
@@ -220,7 +227,7 @@ export default function Products({ isSidebarOpen }) {
                                     name="input"
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
-                                    placeholder="Search user by name..."
+                                    placeholder="Search product by brand, category or name..."
                                     className="p-2 outline-none w-[250px]"
                                 />
                                 <IoSearch className="text-lg text-gray-500" />
@@ -252,6 +259,7 @@ export default function Products({ isSidebarOpen }) {
                                                 />
                                             </div>
                                             <h3 className="text-md font-semibold mb-1">{product.name}</h3>
+                                            <p className="text-gray-500 text-sm mb-2">Quantity: {product.quantity}</p>
                                             <p className="text-gray-500 text-sm mb-2">{product.brand}</p>
                                             <p className="text-gray-500 text-sm mb-2">{product.description}</p>
                                             <p className="text-blue-600 font-bold mb-3">
@@ -295,7 +303,7 @@ export default function Products({ isSidebarOpen }) {
 
                                         <div className="flex justify-between">
                                             <button
-                                                onClick={() => handleEdit(product._id)}
+                                                onClick={() => handleEdit(product)}
                                                 className="text-sm cursor-pointer px-3 py-1 rounded bg-yellow-400 hover:bg-yellow-500 text-white"
                                             >
                                                 Edit
@@ -322,6 +330,20 @@ export default function Products({ isSidebarOpen }) {
                     <CreateProductModal closeModal={closeModal} setProducts={setProducts} categories={categories} />
                 </>
             )}
+
+
+            {open1 && selectedProduct && (
+                <>
+                    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"></div>
+                    <EditProductModal
+                        closeModal={closeModal1}
+                        setProducts={setProducts}
+                        product={selectedProduct}
+                        categories={categories}
+                    />
+                </>
+            )}
+
 
             {/* Confirm Delete Modal */}
             {confirmDeleteOpen && (

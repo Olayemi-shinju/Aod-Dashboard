@@ -8,6 +8,9 @@ const OTPForm = () => {
   const OTP_LENGTH = 6;
   const RESEND_TIME = 30;
 
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
   const [timeLeft, setTimeLeft] = useState(RESEND_TIME);
   const [resendAvailable, setResendAvailable] = useState(false);
@@ -88,7 +91,7 @@ const OTPForm = () => {
       setLoading(true);
       setError(null);
 
-      const response = await axios.post('http://localhost:7000/api/v1/verifyOtp', {
+      const response = await axios.post(`${VITE_API_BASE_URL}/verifyOtp`, {
         otp: enteredOtp,
         email,
       });
@@ -114,7 +117,7 @@ const OTPForm = () => {
     setError(null);
 
     try {
-      const resp = await axios.post('http://localhost:7000/api/v1/resend-otp', { email });
+      const resp = await axios.post(`${VITE_API_BASE_URL}/resend-otp`, { email });
       if (resp.data.success === true) {
         toast.success(resp.data.data.msg);
       }
